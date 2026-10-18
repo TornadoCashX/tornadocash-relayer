@@ -1,0 +1,29 @@
+# /etc/systemd/system/oz-relayer.service
+[Unit]
+Description=OpenZeppelin Relayer v1.8.0 (go-withdraw-relayer backend)
+After=network-online.target redis-server.service
+Wants=network-online.target
+Requires=redis-server.service
+
+[Service]
+User=ozrelayer
+Group=ozrelayer
+WorkingDirectory=/app/oz-relayer
+EnvironmentFile=/app/oz-relayer/.env
+ExecStart=/app/oz-relayer/bin/openzeppelin-relayer
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/app/oz-relayer/config
+ReadWritePaths=/app/oz-relayer/logs
+# OZ holds the decrypted signer key and transaction calldata (recipients) in
+# memory: no core files, no swap. MemorySwapMax needs cgroup v2; on cgroup v1
+# disable swap on the host or encrypt it.
+LimitCORE=0
+MemorySwapMax=0
+
+[Install]
+WantedBy=multi-user.target

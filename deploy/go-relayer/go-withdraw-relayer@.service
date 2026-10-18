@@ -1,0 +1,37 @@
+# /etc/systemd/system/go-withdraw-relayer@.service
+# One instance per chain: `systemctl enable --now go-withdraw-relayer@mainnet`
+# reads /app/go-relayer/mainnet/{relayer.config.json,.env}.
+# In that .env use an absolute SQLITE_PATH, e.g.
+#   SQLITE_PATH=/app/go-relayer/mainnet/data/relayer-oz.db
+# (a relative path resolves against WorkingDirectory).
+[Unit]
+Description=go-withdraw-relayer (%i)
+After=network-online.target oz-relayer.service
+Wants=network-online.target
+
+[Service]
+User=gorelayer
+Group=gorelayer
+WorkingDirectory=/app/go-relayer/%i
+ExecStart=/app/go-relayer/bin/go-withdraw-relayer \
+  --config /app/go-relayer/%i/relayer.config.json \
+  --env /app/go-relayer/%i/.env
+Restart=on-failure
+RestartSec=5
+# Graceful shutdown: HTTP 15 s + workers 30 s.
+TimeoutStopSec=60
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadOnlyPaths=/app/go-relayer
+ReadWritePaths=/app/go-relayer/%i/data
+# Request data (proofs, recipients, client IPs) must not reach disk through
+# core files or swap. The binary also sets RLIMIT_CORE=0 and
+# PR_SET_DUMPABLE=0 itself. MemorySwapMax needs cgroup v2 (default on current
+# Debian/Ubuntu/RHEL); on cgroup v1 disable swap on the host or encrypt it.
+LimitCORE=0
+MemorySwapMax=0
+
+[Install]
+WantedBy=multi-user.target

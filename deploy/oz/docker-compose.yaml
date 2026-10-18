@@ -1,0 +1,49 @@
+# OpenZeppelin Relayer v1.8.0 + Redis for go-withdraw-relayer.
+# The API is bound to 127.0.0.1 only; go-withdraw-relayer uses
+# OZ_RELAYER_URL=http://127.0.0.1:8080. Redis is not published at all.
+services:
+  relayer:
+    image: openzeppelin/openzeppelin-relayer:v1.8.0
+    env_file: .env
+    environment:
+      REDIS_URL: redis://redis:6379
+      REPOSITORY_STORAGE_TYPE: redis
+      IN_DOCKER: "true"
+    ports:
+      - "127.0.0.1:8080:8080"
+      - "127.0.0.1:8081:8081"
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges
+    # Signer key and calldata stay in RAM: no core files, no swap
+    # (memswap_limit == mem_limit disables swap; raise both together).
+    ulimits:
+      core: 0
+    mem_limit: 2g
+    memswap_limit: 2g
+
+  redis:
+    image: redis:7-bookworm
+    # AOF fsync every second: OZ keeps nonces and tx state here. RDB snapshots
+    # are off (--save ""): a dump.rdb would be one more on-disk copy of
+    # transaction calldata (recipients) that outlives
+    # TRANSACTION_EXPIRATION_HOURS. AOF is rewritten automatically, so deleted
+    # records leave it over time. Put the volume on an encrypted disk.
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--save", ""]
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges
+    ulimits:
+      core: 0
+    mem_limit: 1g
+    memswap_limit: 1g
+
+volumes:
+  redis_data:

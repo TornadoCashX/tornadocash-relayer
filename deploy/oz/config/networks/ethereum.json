@@ -1,0 +1,29 @@
+{
+  "networks": [
+    {
+      "type": "evm",
+      "network": "mainnet",
+      "chain_id": 1,
+      "symbol": "ETH",
+      "features": ["eip1559"],
+      "is_testnet": false,
+      "average_blocktime_ms": 12000,
+      "required_confirmations": 3,
+      "rpc_urls": [
+        "https://REPLACE-WITH-PRIMARY-MAINNET-RPC",
+        "https://REPLACE-WITH-BACKUP-MAINNET-RPC"
+      ],
+      "explorer_urls": ["https://api.etherscan.io/api", "https://etherscan.io"]
+    },
+    {
+      "from": "mainnet",
+      "type": "evm",
+      "network": "sepolia",
+      "chain_id": 11155111,
+      "is_testnet": true,
+      "required_confirmations": 6,
+      "rpc_urls": ["https://REPLACE-WITH-SEPOLIA-RPC"],
+      "explorer_urls": ["https://api-sepolia.etherscan.io/api", "https://sepolia.etherscan.io"]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "networks": [
+    {
+      "type": "evm",
+      "network": "binance-smart-chain",
+      "chain_id": 56,
+      "symbol": "BNB",
+      "features": [
+        "eip1559"
+      ],
+      "is_testnet": false,
+      "average_blocktime_ms": 3000,
+      "required_confirmations": 1,
+      "rpc_urls": [
+        "https://REPLACE-WITH-PRIMARY-BSC-RPC",
+        "https://bsc-dataseed.bnbchain.org",
+        "https://bsc-rpc.publicnode.com"
+      ],
+      "explorer_urls": [
+        "https://api.bscscan.com/api",
+        "https://bscscan.com"
+      ]
+    }
+  ]
+}

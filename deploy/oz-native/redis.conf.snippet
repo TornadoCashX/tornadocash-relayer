@@ -1,0 +1,14 @@
+# Add to /etc/redis/redis.conf (Redis holds OZ nonces and in-flight transactions)
+bind 127.0.0.1 ::1
+protected-mode yes
+# AOF is the durability source for nonces; keep it.
+appendonly yes
+appendfsync everysec
+# RDB snapshots off: a dump.rdb is one more on-disk copy of transaction
+# calldata (recipients) that outlives TRANSACTION_EXPIRATION_HOURS. Remove
+# every other "save" line from redis.conf; after restarting, delete the old
+# dump.rdb in the Redis "dir" (e.g. /var/lib/redis/dump.rdb).
+save ""
+# Password: generate with `openssl rand -hex 24`; use the same value in REDIS_URL.
+# Redis config does not allow trailing comments on a directive line.
+requirepass <redis-password>
